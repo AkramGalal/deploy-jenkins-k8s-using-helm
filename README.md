@@ -32,10 +32,25 @@ helm repo update
   ``` bash
   helm install jenkins jenkins/jenkins -n jenkins
   ```
+- Install Jenkins into that namespace without PVC.
+  ``` bash
+  helm install jenkins jenkins/jenkins -n jenkins --set persistence.enabled=false
+  ```
+  
+### Step 5: Access Jenkins UI
+- Edit service file to change Jenkins service type from ClusterIP to NodePort.
+  ``` bash
+  kubectl -n jenkins edit svc jenkins
+  ```
+- Check Jenkins deployment status
+  <img width="1442" height="311" alt="Screenshot 2025-10-11 233407" src="https://github.com/user-attachments/assets/e25a27f6-5173-4622-a1b6-ce7c47092a46" />
 
+- Locate the Jenkins service and the port number. Access Jenkins in web browser using the node IP address and the port number.
+- Retrieve Jenkins admin password generated during the installation to access UI.
+  ``` bash
+  kubectl get secret jenkins -n jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode; echo
+  ```
+- Sign in to Jenkins by username: admin and the retrived password from the secret.
+ 
+  <img width="3821" height="1962" alt="Screenshot 2025-10-11 234552" src="https://github.com/user-attachments/assets/dd2287ed-f7de-40ee-b03d-fea014ddfb5a" />
 
-### Step 5: Check Jenkins status
-
-### Step 6: Access Jenkins UI
-- Locate the Jenkins service and note the port number. Use this port to access Jenkins in web browser using the cluster IP address or node IP address.
-- 
