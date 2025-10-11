@@ -24,9 +24,13 @@ helm repo update
 ```
 
 ### Step 4: Install Jenkins and Customize admin password
-- Install Jenkins on the K8s cluster, run the following Helm command
+- Create namespace
   ``` bash
-  helm install jenkins jenkins/jenkins --set adminPassword=<your_password>
+  kubectl create namespace jenkins
+  ```
+- Install Jenkins into that namespace
+  ``` bash
+  helm install jenkins jenkins/jenkins -n jenkins
   ```
 
 ### Step 5: Access Jenkins UI
