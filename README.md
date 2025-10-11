@@ -23,7 +23,7 @@ helm repo add jenkins https://charts.jenkins.io
 helm repo update
 ```
 
-### Step 4: Install Jenkins and Customize admin password
+### Step 4: Install Jenkins
 - Create namespace
   ``` bash
   kubectl create namespace jenkins
@@ -33,9 +33,9 @@ helm repo update
   helm install jenkins jenkins/jenkins -n jenkins
   ```
 
-### Step 5: Access Jenkins UI
-- Locate the Jenkins service and note the port number. Use this port to access Jenkins in web browser using the cluster IP address or node IP address.
-  ``` bash
-  kubectl get svc --namespace default jenkins
-  ```
 
+### Step 5: Check Jenkins status
+
+### Step 6: Access Jenkins UI
+- Locate the Jenkins service and note the port number. Use this port to access Jenkins in web browser using the cluster IP address or node IP address.
+- 
