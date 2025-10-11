@@ -3,7 +3,8 @@ This repository shows the deployment of Jenkins on a Kubernetes cluster using He
 
 ## Deployment Steps
 ### Step 1: Install Helm
-- For Debian-based systems
+- For Debian-based systems.
+  
   ``` bash
   sudo apt-get install curl gpg apt-transport-https --yes
   curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
@@ -24,11 +25,11 @@ helm repo update
 ```
 
 ### Step 4: Install Jenkins
-- Create namespace
+- Create namespace.
   ``` bash
   kubectl create namespace jenkins
   ```
-- Install Jenkins into that namespace
+- Install Jenkins into that namespace.
   ``` bash
   helm install jenkins jenkins/jenkins -n jenkins
   ```
@@ -42,7 +43,8 @@ helm repo update
   ``` bash
   kubectl -n jenkins edit svc jenkins
   ```
-- Check Jenkins deployment status
+- Check Jenkins deployment status.
+  
   <img width="1442" height="311" alt="Screenshot 2025-10-11 233407" src="https://github.com/user-attachments/assets/e25a27f6-5173-4622-a1b6-ce7c47092a46" />
 
 - Locate the Jenkins service and the port number. Access Jenkins in web browser using the node IP address and the port number.
@@ -50,7 +52,7 @@ helm repo update
   ``` bash
   kubectl get secret jenkins -n jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode; echo
   ```
-- Sign in to Jenkins by username: admin and the retrived password from the secret.
+- Sign in to Jenkins UI using username "admin" and the retrieved password from the secret.
  
   <img width="3821" height="1962" alt="Screenshot 2025-10-11 234552" src="https://github.com/user-attachments/assets/dd2287ed-f7de-40ee-b03d-fea014ddfb5a" />
 
