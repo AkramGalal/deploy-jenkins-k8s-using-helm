@@ -52,7 +52,7 @@ helm repo update
   helm install jenkins jenkins/jenkins -n jenkins --set persistence.existingClaim=jenkins-workspace-pvc
   ```
 
-- Install Jenkins without PVC (ephemeral workspace, not recommended for multi-job persistence)
+- Install Jenkins without PVC (ephemeral workspace, not recommended for multi-job persistence).
   ``` bash
   helm install jenkins jenkins/jenkins -n jenkins --set persistence.enabled=false
   ```
