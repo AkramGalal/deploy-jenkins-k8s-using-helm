@@ -29,36 +29,25 @@ helm repo update
 ```
 
 ### Step 4: Install Jenkins
-- Create namespace.
+- Create a namespace for Jenkins.
   ``` bash
   kubectl create namespace jenkins
   ```
   
-- Create a PersistentVolumeClaim (PVC) for Jenkins workspace.
+- Prepare the Persistent Volume on the host. Jenkins requires a persistent volume to store its workspace and configuration. Create the folder and set proper permissions:
   ``` bash
-  vim jenkins-pvc.yaml
+  sudo mkdir -p /var/lib/jenkins/workspace
+  sudo chown -R 1000:1000 /var/lib/jenkins
+  sudo chmod -R 755 /var/lib/jenkins
   ```
-
-   ``` bash
-  apiVersion: v1
-  kind: PersistentVolumeClaim
-  metadata:
-    name: jenkins-workspace-pvc
-    namespace: jenkins
-  spec:
-    accessModes:
-      - ReadWriteOnce
-    resources:
-      requests:
-        storage: 10Gi
-   ```
-
-- Apply the PVC.
+  
+- Apply the PersistentVolume (PV) and PersistentVolumeClaim (PVC).
   ``` bash
+  kubectl apply -f jenkins-pv.yaml
   kubectl apply -f jenkins-pvc.yaml
   ```
 
-- Install Jenkins into that namespace using the PVC
+- Install Jenkins with Helm using the existing PVC.
   ``` bash
   helm install jenkins jenkins/jenkins -n jenkins --set persistence.existingClaim=jenkins-workspace-pvc
   ```
@@ -73,7 +62,7 @@ helm repo update
   ``` bash
   kubectl -n jenkins edit svc jenkins
   ```
-- Check Jenkins deployment status.
+- Verify Jenkins deployment status.
   
   <img width="1442" height="311" alt="Screenshot 2025-10-11 233407" src="https://github.com/user-attachments/assets/e25a27f6-5173-4622-a1b6-ce7c47092a46" />
 
