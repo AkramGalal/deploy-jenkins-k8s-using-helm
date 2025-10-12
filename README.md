@@ -33,11 +33,37 @@ helm repo update
   ``` bash
   kubectl create namespace jenkins
   ```
-- Install Jenkins into that namespace.
+  
+- Create a PersistentVolumeClaim (PVC) for Jenkins workspace.
   ``` bash
-  helm install jenkins jenkins/jenkins -n jenkins
+  vim jenkins-pvc.yaml
   ```
-- Install Jenkins into that namespace without PVC.
+
+   ``` bash
+  apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: jenkins-workspace-pvc
+    namespace: jenkins
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+   ```
+
+- Apply the PVC.
+  ``` bash
+  kubectl apply -f jenkins-pvc.yaml
+  ```
+
+- Install Jenkins into that namespace using the PVC
+  ``` bash
+  helm install jenkins jenkins/jenkins -n jenkins --set persistence.existingClaim=jenkins-workspace-pvc
+  ```
+
+- Install Jenkins without PVC (ephemeral workspace, not recommended for multi-job persistence)
   ``` bash
   helm install jenkins jenkins/jenkins -n jenkins --set persistence.enabled=false
   ```
