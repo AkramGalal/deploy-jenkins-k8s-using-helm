@@ -34,7 +34,8 @@ helm repo update
   kubectl create namespace jenkins
   ```
   
-- Prepare the Persistent Volume on the host. Jenkins requires a persistent volume to store its workspace and configuration. Create the directory and set proper permissions (on the master and worker nodes):
+- Prepare the Persistent Volume on the host. Jenkins requires a persistent volume to store its workspace and configuration.
+- Create the directory and set proper permissions (on the master and worker nodes):
   ``` bash
   sudo mkdir -p /var/lib/jenkins
   sudo chown -R 1000:1000 /var/lib/jenkins
