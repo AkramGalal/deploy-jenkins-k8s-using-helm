@@ -44,12 +44,12 @@ helm repo update
 - Apply the PersistentVolume (PV) and PersistentVolumeClaim (PVC).
   ``` bash
   kubectl apply -f jenkins-pv.yaml
-  kubectl apply -f jenkins-pvc.yaml
+  kubectl apply -f jenkins-pvc.yaml -n jenkins
   ```
 
 - Install Jenkins with Helm using the existing PVC.
   ``` bash
-  helm install jenkins jenkins/jenkins -n jenkins
+  helm install jenkins jenkins/jenkins -n jenkins --set persistence.existingClaim=jenkins
   ```
 
 - Install Jenkins without PVC (ephemeral workspace, not recommended for multi-job persistence).
