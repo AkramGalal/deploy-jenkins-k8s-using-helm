@@ -7,6 +7,6 @@ spec:
     storage: 10Gi
   accessModes:
     - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: /var/lib/jenkins
-  persistentVolumeReclaimPolicy: Retain
