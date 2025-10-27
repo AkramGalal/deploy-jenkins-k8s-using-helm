@@ -48,7 +48,7 @@ helm repo update
 
 ### Step 4: Prepare Persistent Volumes
 
-#### Jenkins Controller Volume
+#### 4.1) Jenkins Controller Volume
 - The Jenkins controller requires a persistent volume to store configuration and Jenkins home data.
 - On `worker1`, create the directory and assign proper permissions:
   ```bash
@@ -57,7 +57,7 @@ helm repo update
   sudo chmod -R 755 /var/lib/jenkins-controller-data
   ```
   
-#### Jenkins Agent Volume
+#### 4.2) Jenkins Agent Volume
 - The Jenkins agent requires a separate persistent volume to store job workspaces.
 - On `worker1`, create the directory and set proper permissions:
   ```bash
@@ -114,6 +114,12 @@ helm repo update
 
   <img width="3821" height="1017" alt="Screenshot 2025-10-12 001513" src="https://github.com/user-attachments/assets/1824010f-81ff-4cac-a170-96c37e7d08e2" />
 
+### Step 6: Verify Jenkins Agent Execution
+- Create a simple Jenkins job from the UI and run it to verify that it executes on the labeled node `worker1`.
+- You can confirm by checking the workspace directory on `worker1`.
+  ``` bash
+  ls /var/lib/jenkins-agent-workspaces/workspace/job1
+  ```
 ## References
 - [Helm Documentation](https://helm.sh/docs/)
 - [Jenkins on Kubernetes](https://www.jenkins.io/doc/book/installing/kubernetes/)
