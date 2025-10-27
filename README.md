@@ -33,29 +33,39 @@ helm repo update
   ``` bash
   kubectl create namespace jenkins
   ```
+
+- Choose worker1 node to be the worker node of Jenkins Pods.
+  kubectl label nodes worker1 jenkins-node=true
   
-- Prepare the Persistent Volume on the host. Jenkins requires a persistent volume to store its workspace and configuration.
-- Create the directory and set proper permissions (on the master and worker nodes):
+- Prepare Persistent Volume for Jenkins controller on the worker node. Jenkins requires a persistent volume to store its workspace and configuration.
+- Create the directory and set proper permissions (on worker1):
   ``` bash
-  sudo mkdir -p /var/lib/jenkins
-  sudo chown -R 1000:1000 /var/lib/jenkins
-  sudo chmod -R 755 /var/lib/jenkins
-  ```
-  
-- Apply the PersistentVolume (PV) and PersistentVolumeClaim (PVC).
-  ``` bash
-  kubectl apply -f jenkins-pv.yaml
-  kubectl apply -f jenkins-pvc.yaml -n jenkins
+  sudo mkdir -p /var/lib/jenkins-controller-data
+  sudo chown -R 1000:1000 /var/lib/jenkins-controller-data
+  sudo chmod -R 755 /var/lib/jenkins-controller-data
   ```
 
-- Install Jenkins with Helm using the existing PVC.
+- Prepare Persistent Volume for Jenkins agent on the worker node. Jenkins agent requires a persistent volume to store its workspace of jobs.
+- Create the directory and set proper permissions (on worker1):
   ``` bash
-  helm install jenkins jenkins/jenkins -n jenkins --set persistence.existingClaim=jenkins
+  sudo mkdir -p /var/lib/jenkins-agent-workspaces
+  sudo chown -R 1000:1000 /var/lib/jenkins-agent-workspaces
+  sudo chmod -R 755 /var/lib/jenkins-agent-workspaces
   ```
-
-- Install Jenkins without PVC (ephemeral workspace, not recommended for multi-job persistence).
+  
+- Apply the PersistentVolume (PV) of Jenkins controller.
   ``` bash
-  helm install jenkins jenkins/jenkins -n jenkins --set persistence.enabled=false
+  kubectl apply -f jenkins-controller-pv.yaml
+  ```
+  
+- Apply the PersistentVolume (PV) of Jenkins agent.
+  ``` bash
+  kubectl apply -f jenkins-agent-pv.yaml
+  ```
+  
+- Install Jenkins with Helm using updated 'values.yaml' file to apply the created PVs.
+  ``` bash
+  helm install jenkins jenkins/jenkins -n jenkins -f values.yaml
   ```
   
 ### Step 5: Access Jenkins UI
