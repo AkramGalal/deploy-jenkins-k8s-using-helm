@@ -1,0 +1,19 @@
+controller:
+  nodeSelector:
+    jenkins-node: "true"
+  persistence:
+    enabled: true
+    existingClaim: jenkins-pvc   
+    accessModes:
+      - ReadWriteOnce
+    storageClassName: ""         
+    mountPath: /var/jenkins_home
+
+agent:
+  enabled: true
+  nodeSelector:
+    jenkins-node: "true"
+  workspaceVolume:
+    type: PVC
+    claimName: jenkins-agent-pvc
+  workspaceDir: "/home/jenkins/agent"
