@@ -1,14 +1,17 @@
 # Deploy Jenkins on K8s Cluster using Helm
-This repository shows the deployment of Jenkins on a Kubernetes cluster using Helm.
+
+This repository demonstrates how to deploy Jenkins on a Kubernetes cluster using Helm and configure it to use Persistent Volumes on a specific worker node.
 
 ## Prerequisites
--   A running Kubernetes cluster.
--   Helm installed on your machine. Follow the official [Helm installation guide](https://helm.sh/docs/intro/install/).
+- A running Kubernetes cluster.
+- Helm installed on your machine. Follow the official [Helm installation guide](https://helm.sh/docs/intro/install/).
+
+---
 
 ## Deployment Steps
+
 ### Step 1: Install Helm
-- For Debian-based systems.
-  
+- For Debian-based systems:
   ``` bash
   sudo apt-get install curl gpg apt-transport-https --yes
   curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
@@ -18,56 +21,81 @@ This repository shows the deployment of Jenkins on a Kubernetes cluster using He
   helm version
   ```
 
+---
+
 ### Step 2: Add the Jenkins Helm Repository
 ``` bash
 helm repo add jenkins https://charts.jenkins.io
-```
-
-### Step 3: Update the Helm Repositories
-``` bash
 helm repo update
 ```
 
-### Step 4: Install Jenkins
-- Create a namespace for Jenkins.
-  ``` bash
+---
+
+### Step 3: Create Namespace and Label Worker Node
+
+- Create a dedicated namespace for Jenkins: 
+  ```bash
   kubectl create namespace jenkins
   ```
-
-- Choose worker1 node to be the worker node of Jenkins Pods.
-  kubectl label nodes worker1 jenkins-node=true
   
-- Prepare Persistent Volume for Jenkins controller on the worker node. Jenkins requires a persistent volume to store its workspace and configuration.
-- Create the directory and set proper permissions (on worker1):
-  ``` bash
+- Label the desired worker node (e.g., `worker1`) so that Jenkins controller and agent pods can be scheduled there:
+  ```bash
+  kubectl label nodes worker1 jenkins-node=true
+  ```
+- This label will be referenced in the PV `nodeAffinity` and the Helm `values.yaml` file.
+
+---
+
+### Step 4: Prepare Persistent Volumes
+
+#### Jenkins Controller Volume
+- The Jenkins controller requires a persistent volume to store configuration and Jenkins home data.
+- On `worker1`, create the directory and assign proper permissions:
+  ```bash
   sudo mkdir -p /var/lib/jenkins-controller-data
   sudo chown -R 1000:1000 /var/lib/jenkins-controller-data
   sudo chmod -R 755 /var/lib/jenkins-controller-data
   ```
-
-- Prepare Persistent Volume for Jenkins agent on the worker node. Jenkins agent requires a persistent volume to store its workspace of jobs.
-- Create the directory and set proper permissions (on worker1):
-  ``` bash
+  
+#### Jenkins Agent Volume
+- The Jenkins agent requires a separate persistent volume to store job workspaces.
+- On `worker1`, create the directory and set proper permissions:
+  ```bash
   sudo mkdir -p /var/lib/jenkins-agent-workspaces
   sudo chown -R 1000:1000 /var/lib/jenkins-agent-workspaces
   sudo chmod -R 755 /var/lib/jenkins-agent-workspaces
   ```
-  
-- Apply the PersistentVolume (PV) of Jenkins controller.
-  ``` bash
-  kubectl apply -f jenkins-controller-pv.yaml
-  ```
-  
-- Apply the PersistentVolume (PV) of Jenkins agent.
-  ``` bash
+- Apply both PersistentVolume definitions:
+  ```bash
+  kubectl apply -f jenkins-pv.yaml
   kubectl apply -f jenkins-agent-pv.yaml
   ```
-  
-- Install Jenkins with Helm using updated 'values.yaml' file to apply the created PVs.
-  ``` bash
+- Verify they are created:
+  ```bash
+  kubectl get pv
+  ```
+---
+
+### Step 5: Create PersistentVolumeClaims (PVC)
+- Create PVCs for both controller and agent:
+  ```bash
+  kubectl apply -f jenkins-pvc.yaml
+  kubectl apply -f jenkins-agent-pvc.yaml
+  ```
+- Check their binding status:
+  ```bash
+  kubectl get pvc -n jenkins
+  ```
+- You should see both PVCs in `Bound` state.
+
+---
+
+### Step 6: Deploy Jenkins with Helm
+- Install Jenkins using Helm and the customized `values.yaml` file that references the created PVCs:
+  ```bash
   helm install jenkins jenkins/jenkins -n jenkins -f values.yaml
   ```
-  
+
 ### Step 5: Access Jenkins UI
 - Edit service file to change Jenkins service type from ClusterIP to NodePort.
   ``` bash
@@ -82,10 +110,11 @@ helm repo update
   ``` bash
   kubectl get secret jenkins -n jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode; echo
   ```
-- Sign in to Jenkins UI using username "admin" and the retrieved password from the secret.
+- Access Jenkins UI using username "admin" and the retrieved password from the secret.
 
   <img width="3821" height="1017" alt="Screenshot 2025-10-12 001513" src="https://github.com/user-attachments/assets/1824010f-81ff-4cac-a170-96c37e7d08e2" />
 
 ## References
-- [Official Helm Documentation](https://helm.sh/docs/)
-- [Official Jenkins-Kubernetes Documentation](https://www.jenkins.io/doc/book/installing/kubernetes/)
+- [Helm Documentation](https://helm.sh/docs/)
+- [Jenkins on Kubernetes](https://www.jenkins.io/doc/book/installing/kubernetes/)
+- [Jenkins Helm Chart Documentation](https://artifacthub.io/packages/helm/jenkinsci/jenkins)
